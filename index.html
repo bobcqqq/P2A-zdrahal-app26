@@ -6,61 +6,77 @@
 
 <style>
 body {
- font-family: Arial;
- background: white;
  margin: 0;
+ font-family: Arial;
+ background: #f5f5f5;
 }
 
+/* ✅ HEADER */
 header {
- text-align: center;
  background: #b22222;
  color: white;
- padding: 20px;
-}
-
-.container {
- max-width: 700px;
- margin: 20px auto;
- padding: 20px;
-}
-
-/* ✅ BOX PRODUKTU */
-.item {
- border: 2px solid red;
- border-radius: 10px;
  padding: 15px;
- margin-bottom: 10px;
  display: flex;
  justify-content: space-between;
  align-items: center;
- background: #fff5f5;
 }
 
-/* ✅ INPUTY */
+header h1 {
+ margin: 0;
+}
+
+.logo img {
+ height: 50px;
+}
+
+/* ✅ GRID */
+#items {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+ gap: 20px;
+ padding: 20px;
+}
+
+/* ✅ KARTA PRODUKTU */
+.card {
+ background: white;
+ border-radius: 10px;
+ padding: 15px;
+ box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+ transition: 0.3s;
+ text-align: center;
+}
+
+.card:hover {
+ transform: translateY(-5px);
+ box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* ✅ CENA */
+.price {
+ color: red;
+ font-weight: bold;
+ margin: 10px 0;
+}
+
+/* ✅ INPUT */
 input[type="number"] {
  width: 60px;
 }
 
-input[type="text"], input[type="email"] {
- width: 100%;
- padding: 10px;
- margin-top: 10px;
- border: 1px solid #ccc;
- border-radius: 5px;
+/* ✅ PANEL */
+.panel {
+ background: white;
+ padding: 20px;
+ margin: 20px;
+ border-radius: 10px;
 }
 
-/* ✅ SOUHRN */
-.summary {
- text-align: center;
- font-weight: bold;
- margin-top: 10px;
-}
-
-/* ✅ TLAČÍTKO */
+/* ✅ BUTTON */
 button {
  width: 100%;
  padding: 15px;
- margin-top: 15px;
+ margin-top: 10px;
  font-size: 18px;
  background: red;
  color: white;
@@ -72,159 +88,118 @@ button {
 button:hover {
  background: darkred;
 }
-
-.logo {
- text-align: center;
- margin: 20px;
-}
 </style>
 
 </head>
+
 <body>
 
 <header>
-<h1>Řeznictví U Zlatého nože</h1>
+<h1>🥩 Řeznictví U Zlatého nože</h1>
 </header>
-
-<!-- ✅ LOGO (vygenerované SVG) -->
-<div class="logo">
-<svg width="120" height="120">
- <circle cx="60" cy="60" r="50" fill="#b22222"/>
- <text x="50%" y="55%" text-anchor="middle" font-size="45" fill="white">🥩</text>
-</svg>
-</div>
-
-<div class="container">
 
 <div id="items"></div>
 
-<div id="celkem" class="summary">Celková cena: 0 Kč</div>
-<div id="pocet" class="summary">Počet kusů: 0</div>
+<div class="panel">
+<div id="celkem">Celkem: 0 Kč</div>
+<div id="pocet">Počet kusů: 0</div>
 
-<h3>Kontaktní údaje</h3>
-
-<input type="text" id="jmeno" placeholder="Jméno a příjmení">
+<input type="text" id="jmeno" placeholder="Jméno">
 <input type="email" id="email" placeholder="Email">
-<input type="text" id="telefon" placeholder="+420 000 000 000">
+<input type="text" id="telefon" placeholder="Telefon">
 
-<button onclick="odeslatObjednavku()">ODESLAT OBJEDNÁVKU</button>
-
+<button onclick="odeslat()">Objednat</button>
 </div>
 
 <script>
 
 let items = [];
 
-// ✅ načtení CSV
 async function loadCSV() {
- let response = await fetch("data_reznictvi.csv?t=" + Date.now());
- let text = await response.text();
- let lines = text.split("\n");
+ let r = await fetch("data_reznictvi.csv?t=" + Date.now());
+ let t = await r.text();
+ let lines = t.split("\n");
 
  for (let i = 1; i < lines.length; i++) {
   let line = lines[i].trim();
   if (!line) continue;
 
-  let [nazev, cena] = line.split(",");
-
-  items.push({
-   nazev: nazev,
-   cena: parseFloat(cena),
-   mnozstvi: 0
-  });
+  let [n, c] = line.split(",");
+  items.push({nazev: n, cena: parseFloat(c), m: 0});
  }
 
- renderItems();
+ render();
 }
 
-// ✅ vykreslení produktů
-function renderItems() {
+function render() {
  let container = document.getElementById("items");
  container.innerHTML = "";
 
- items.forEach((item, index) => {
-  let div = document.createElement("div");
-  div.className = "item";
+ items.forEach((it, i) => {
+  let card = document.createElement("div");
+  card.className = "card";
 
-  div.innerHTML = `
-    <span>${item.nazev} (${item.cena} Kč)</span>
-    <input type="number" min="0"
-    onchange="updateItem(${index}, this.value)">
+  card.innerHTML = `
+   <h3>${it.nazev}</h3>
+   <div class="price">${it.cena} Kč</div>
+   <input type="number" min="0" onchange="update(${i}, this.value)">
   `;
 
-  container.appendChild(div);
+  container.appendChild(card);
  });
 }
 
-// ✅ změna množství
-function updateItem(index, value) {
- items[index].mnozstvi = parseInt(value) || 0;
- updateSummary();
+function update(i, v) {
+ items[i].m = parseInt(v) || 0;
+ sum();
 }
 
-// ✅ výpočet
-function updateSummary() {
- let celkem = 0;
- let pocet = 0;
+function sum() {
+ let cel = 0, poc = 0;
 
- items.forEach(item => {
-  celkem += item.cena * item.mnozstvi;
-  pocet += item.mnozstvi;
+ items.forEach(it => {
+  cel += it.cena * it.m;
+  poc += it.m;
  });
 
- document.getElementById("celkem").innerText =
-  "Celková cena: " + celkem + " Kč";
-
- document.getElementById("pocet").innerText =
-  "Počet kusů: " + pocet;
+ document.getElementById("celkem").innerText = "Celkem: " + cel + " Kč";
+ document.getElementById("pocet").innerText = "Počet: " + poc;
 }
 
-// ✅ odeslání (OPRAVENO)
-function odeslatObjednavku() {
+function odeslat() {
+ let j = jmeno.value.trim();
+ let e = email.value.trim();
+ let t = telefon.value.trim();
 
- let jmeno = document.getElementById("jmeno").value.trim();
- let email = document.getElementById("email").value.trim();
- let telefon = document.getElementById("telefon").value.trim();
-
- if (!jmeno || !email || !telefon) {
-  alert("Vyplň všechny údaje!");
+ if (!j || !e || !t) {
+  alert("Vyplň údaje");
   return;
  }
 
- let textPolozky = "";
- let celkem = 0;
- let pocet = 0;
+ let txt = "", cel = 0, poc = 0;
 
- items.forEach(item => {
-  if (item.mnozstvi > 0) {
-   let cena = item.cena * item.mnozstvi;
-   celkem += cena;
-   pocet += item.mnozstvi;
-
-   textPolozky += item.nazev + " - " + item.mnozstvi + " ks\\n";
+ items.forEach(it => {
+  if (it.m > 0) {
+   txt += it.nazev + " - " + it.m + " ks\n";
+   cel += it.m * it.cena;
+   poc += it.m;
   }
  });
 
- if (pocet === 0) {
-  alert("Nevybral jsi žádné zboží!");
+ if (!poc) {
+  alert("Nic nevybráno");
   return;
  }
 
  let zprava =
-  "Jméno: " + jmeno + "\\n" +
-  "Email: " + email + "\\n" +
-  "Telefon: " + telefon + "\\n\\n" +
-  "Položky:\\n" + textPolozky + "\\n" +
-  "Celkem: " + celkem + " Kč";
+  j + "\n" + e + "\n" + t + "\n\n" +
+  txt + "\nCelkem: " + cel + " Kč";
 
- let mailto =
- "mailto:zdrahal.robin@kostka-skola.cz?subject=Objednávka&body=" +
- encodeURIComponent(zprava);
-
- window.location.href = mailto;
+ window.location.href =
+  "mailto:zdrahal.robin@kostka-skola.cz?subject=Objednávka&body=" +
+  encodeURIComponent(zprava);
 }
 
-// start
 loadCSV();
 
 </script>
