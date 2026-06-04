@@ -27,7 +27,7 @@ header {
  width: 120px;
 }
 
-/* ✅ GRID */
+/* ✅ GRID PRODUKTŮ */
 .section {
  display: grid;
  grid-template-columns: repeat(2, 1fr);
@@ -35,6 +35,7 @@ header {
  padding: 20px;
 }
 
+/* ✅ KARTY */
 .card {
  background: white;
  border-radius: 12px;
@@ -55,32 +56,66 @@ header {
  margin: 10px 0;
 }
 
+/* ✅ PANEL FORMULÁŘ */
 .panel {
  background: white;
- padding: 20px;
- margin: 20px auto;
- border-radius: 15px;
- max-width: 400px;
+ padding: 30px;
+ margin: 40px auto;
+ border-radius: 20px;
+ max-width: 420px;
+ text-align: left;
+ box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.panel h3 {
  text-align: center;
- box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.panel label {
+ display: block;
+ margin-top: 10px;
+ font-weight: bold;
 }
 
 .panel input {
  width: 100%;
- padding: 10px;
- margin-top: 10px;
+ padding: 12px;
+ margin-top: 5px;
+ border-radius: 8px;
+ border: 1px solid #ccc;
+ font-size: 14px;
+ transition: 0.2s;
 }
 
+.panel input:focus {
+ border: 1px solid red;
+ outline: none;
+ box-shadow: 0 0 5px rgba(255,0,0,0.3);
+}
+
+/* ✅ SOUHRN */
+.summary {
+ text-align: center;
+ font-weight: bold;
+ margin-bottom: 10px;
+}
+
+/* ✅ BUTTON */
 button {
- width: 200px;
- padding: 12px;
- margin: 15px auto;
- display: block;
- background: red;
+ width: 100%;
+ padding: 14px;
+ margin-top: 20px;
+ font-size: 16px;
+ background: linear-gradient(45deg, red, darkred);
  color: white;
  border: none;
- border-radius: 8px;
+ border-radius: 10px;
  cursor: pointer;
+ transition: 0.3s;
+}
+
+button:hover {
+ transform: scale(1.05);
 }
 </style>
 </head>
@@ -88,33 +123,43 @@ button {
 <body>
 
 <header>
-<h1>🥩 Řeznictví U Zlatého nože</h1>
+<h1> Řeznictví U Zlatého nože</h1>
 </header>
 
 <div class="logo">
 <img src="logo.png">
 </div>
 
-<h2 style="text-align:center;">🥩 Maso</h2>
+<h2 style="text-align:center;"> Maso</h2>
 <div id="maso" class="section"></div>
 
-<h2 style="text-align:center;">🌭 Uzeniny</h2>
+<h2 style="text-align:center;"> Uzeniny</h2>
 <div id="uzeniny" class="section"></div>
 
+<!-- ✅ NOVÝ PANEL -->
 <div class="panel">
-<div id="celkem">Celkem: 0 Kč</div>
-<div id="pocet">Počet: 0</div>
 
-<input type="text" id="jmeno" placeholder="Jméno">
-<input type="email" id="email" placeholder="Email">
-<input type="text" id="telefon" placeholder="Telefon">
+<h3>🧾 Dokončení objednávky</h3>
 
-<button onclick="odeslat()">Objednat</button>
+<div id="celkem" class="summary">Celkem: 0 Kč</div>
+<div id="pocet" class="summary">Počet: 0</div>
+
+<label>Jméno</label>
+<input type="text" id="jmeno" placeholder="Zadej jméno">
+
+<label>Email</label>
+<input type="email" id="email" placeholder="Zadej email">
+
+<label>Telefon</label>
+<input type="text" id="telefon" placeholder="+420 000 000 000">
+
+<button onclick="odeslat()">Odeslat objednávku</button>
+
 </div>
 
 <script>
 
-/* ✅ DATA natvrdo → žádné CSV chyby */
+/* ✅ DATA */
 let maso = [
  {nazev:"Vepřová kýta (1 kg)", cena:159, mnozstvi:0},
  {nazev:"Kuřecí prsa (1 kg)", cena:129, mnozstvi:0},
@@ -181,8 +226,8 @@ function sum(){
   p += it.mnozstvi;
  });
 
- celkem.innerText="Celkem: " + cel + " Kč";
- pocet.innerText="Počet: " + p;
+ document.getElementById("celkem").innerText="Celkem: " + cel + " Kč";
+ document.getElementById("pocet").innerText="Počet: " + p;
 }
 
 function odeslat(){
