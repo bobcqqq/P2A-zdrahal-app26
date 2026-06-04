@@ -33,7 +33,7 @@ button{width:200px;padding:12px;margin:15px auto;display:block;background:red;co
 let items=[];
 async function loadCSV(){
  try{
- let r=await fetch("data_reznictvi.csv");
+ let r=await fetch("./data_reznictvi.csv");
  let t=await r.text();
  let lines=t.split("
 ");
