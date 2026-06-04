@@ -15,18 +15,18 @@ body {
 header {
  background: #b22222;
  color: white;
- padding: 15px;
- display: flex;
- justify-content: space-between;
- align-items: center;
+ text-align: center;
+ padding: 20px;
 }
 
-header h1 {
- margin: 0;
+/* ✅ LOGO */
+.logo {
+ text-align: center;
+ margin: 20px;
 }
 
 .logo img {
- height: 50px;
+ width: 140px;
 }
 
 /* ✅ GRID */
@@ -52,41 +52,57 @@ header h1 {
  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
 }
 
-/* ✅ CENA */
 .price {
  color: red;
  font-weight: bold;
  margin: 10px 0;
 }
 
-/* ✅ INPUT */
 input[type="number"] {
  width: 60px;
 }
 
-/* ✅ PANEL */
+/* ✅ PANEL (VYLEPŠENÝ) */
 .panel {
  background: white;
- padding: 20px;
- margin: 20px;
- border-radius: 10px;
+ padding: 25px;
+ margin: 20px auto;
+ border-radius: 15px;
+ max-width: 400px;
+ text-align: center;
+ box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
 
-/* ✅ BUTTON */
-button {
+.panel input {
  width: 100%;
- padding: 15px;
+ padding: 10px;
  margin-top: 10px;
- font-size: 18px;
+ border-radius: 5px;
+ border: 1px solid #ccc;
+}
+
+/* ✅ TLAČÍTKO */
+button {
+ width: 200px;           /* menší */
+ padding: 12px;
+ margin: 15px auto;      /* centrování */
+ display: block;
+ font-size: 16px;
  background: red;
  color: white;
  border: none;
- border-radius: 10px;
+ border-radius: 8px;
  cursor: pointer;
 }
 
 button:hover {
  background: darkred;
+}
+
+/* ✅ SOUHRN */
+.summary {
+ margin-top: 10px;
+ font-weight: bold;
 }
 </style>
 
@@ -95,14 +111,20 @@ button:hover {
 <body>
 
 <header>
-<h1>🥩 Řeznictví U Zlatého nože</h1>
+<h1> Řeznictví U Zlatého nože</h1>
 </header>
+
+<!-- ✅ LOGO UPROSTŘED -->
+<div class="logo">
+<img src="logo.png">
+</div>
 
 <div id="items"></div>
 
+<!-- ✅ PANEL UPROSTŘED -->
 <div class="panel">
-<div id="celkem">Celkem: 0 Kč</div>
-<div id="pocet">Počet kusů: 0</div>
+<div id="celkem" class="summary">Celkem: 0 Kč</div>
+<div id="pocet" class="summary">Počet: 0</div>
 
 <input type="text" id="jmeno" placeholder="Jméno">
 <input type="email" id="email" placeholder="Email">
@@ -118,7 +140,7 @@ let items = [];
 async function loadCSV() {
  let r = await fetch("data_reznictvi.csv?t=" + Date.now());
  let t = await r.text();
- let lines = t.split("\n");
+ let lines = t.split("\\n");
 
  for (let i = 1; i < lines.length; i++) {
   let line = lines[i].trim();
@@ -162,8 +184,8 @@ function sum() {
   poc += it.m;
  });
 
- document.getElementById("celkem").innerText = "Celkem: " + cel + " Kč";
- document.getElementById("pocet").innerText = "Počet: " + poc;
+ celkem.innerText = "Celkem: " + cel + " Kč";
+ pocet.innerText = "Počet: " + poc;
 }
 
 function odeslat() {
@@ -180,7 +202,7 @@ function odeslat() {
 
  items.forEach(it => {
   if (it.m > 0) {
-   txt += it.nazev + " - " + it.m + " ks\n";
+   txt += it.nazev + " - " + it.m + " ks\\n";
    cel += it.m * it.cena;
    poc += it.m;
   }
@@ -192,8 +214,8 @@ function odeslat() {
  }
 
  let zprava =
-  j + "\n" + e + "\n" + t + "\n\n" +
-  txt + "\nCelkem: " + cel + " Kč";
+  j + "\\n" + e + "\\n" + t + "\\n\\n" +
+  txt + "\\nCelkem: " + cel + " Kč";
 
  window.location.href =
   "mailto:zdrahal.robin@kostka-skola.cz?subject=Objednávka&body=" +
@@ -206,3 +228,4 @@ loadCSV();
 
 </body>
 </html>
+``
