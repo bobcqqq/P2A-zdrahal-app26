@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Řeznictví U Zlatého nože</title>
+<style>
+body{margin:0;font-family:Arial;background:#f5f5f5}
+header{text-align:center;background:#b22222;color:white;padding:20px}
+.logo{text-align:center;margin:20px}
+.logo img{width:120px}
+
+#maso,#uzeniny{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:25px;
+ padding:20px;
+}
+
+.card{
+ background:white;
+ border-radius:10px;
+ padding:15px;
+ box-shadow:0 3px 10px rgba(0,0,0,0.1);
+ text-align:center;
+ transition:0.3s;
+}
+.card:hover{
+ transform:translateY(-5px);
+ box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+.price{color:red;font-weight:bold;margin:10px 0}
+
+.panel{
+ background:white;
+ padding:20px;
+ margin:20px auto;
+ border-radius:15px;
+ max-width:400px;
+ text-align:center;
+ box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+.panel input{width:100%;padding:10px;margin-top:10px}
+button{width:200px;padding:12px;margin:15px auto;display:block;background:red;color:white;border:none;border-radius:8px}
+
+</style>
+</head>
+<body>
+<header><h1>🥩 Řeznictví U Zlatého nože</h1></header>
+
+<div class="logo"><img src="logo.png"></div>
+
+<h2 style="text-align:center;">🥩 Maso</h2>
+<div id="maso"></div>
+
+<h2 style="text-align:center;">🌭 Uzeniny</h2>
+<div id="uzeniny"></div>
+
+<div class="panel">
+<div id="celkem">Celkem: 0 Kč</div>
+<div id="pocet">Počet: 0</div>
+<input id="jmeno" placeholder="Jméno">
+<input id="email" placeholder="Email">
+<input id="telefon" placeholder="Telefon">
+<button onclick="odeslat()">Objednat</button>
+</div>
+
+<script>
+let maso=[];
+let uzeniny=[];
+
+async function loadCSV(){
+ let r=await fetch("./data_reznictvi.csv");
+ let t=await r.text();
+ let lines=t.split("
+");
+
+ for(let i=1;i<lines.length;i++){
+  let l=lines[i].trim();
+  if(!l)continue;
+  let[nazev,kategorie,cena]=l.split(",");
+
+  let produkt={nazev:nazev,cena:parseFloat(cena),mnozstvi:0};
+
+  if(kategorie=="Maso")maso.push(produkt);
+  else uzeniny.push(produkt);
+ }
+ render();
+}
+
+function render(){
+ let m=document.getElementById("maso");
+ let u=document.getElementById("uzeniny");
+ m.innerHTML="";
+ u.innerHTML="";
+
+ maso.forEach((it,i)=>{
+  let d=document.createElement("div");
+  d.className="card";
+  d.innerHTML=`<h3>${it.nazev}</h3><div class='price'>${it.cena} Kč</div><input type='number' min='0' onchange='updM(${i},this.value)'>`;
+  m.appendChild(d);
+ });
+
+ uzeniny.forEach((it,i)=>{
+  let d=document.createElement("div");
+  d.className="card";
+  d.innerHTML=`<h3>${it.nazev}</h3><div class='price'>${it.cena} Kč</div><input type='number' min='0' onchange='updU(${i},this.value)'>`;
+  u.appendChild(d);
+ });
+}
+
+function updM(i,v){maso[i].mnozstvi=parseInt(v)||0;sum();}
+function updU(i,v){uzeniny[i].mnozstvi=parseInt(v)||0;sum();}
+
+function sum(){
+ let cel=0,p=0;
+ [...maso,...uzeniny].forEach(it=>{cel+=it.cena*it.mnozstvi;p+=it.mnozstvi});
+ celkem.innerText="Celkem: "+cel+" Kč";
+ pocet.innerText="Počet: "+p;
+}
+
+function odeslat(){
+ let j=jmeno.value.trim(),e=email.value.trim(),t=telefon.value.trim();
+ if(!j||!e||!t){alert("Vyplň údaje");return}
+
+ let txt="",cel=0,p=0;
+ [...maso,...uzeniny].forEach(it=>{
+  if(it.mnozstvi>0){txt+=it.nazev+" "+it.mnozstvi+" ks
+";cel+=it.mnozstvi*it.cena;p+=it.mnozstvi}
+ });
+ if(!p){alert("Nic nevybráno");return}
+
+ let msg=j+"
+"+e+"
+"+t+"
+
+"+txt+"
+Celkem:"+cel;
+ window.location.href="mailto:zdrahal.robin@kostka-skola.cz?subject=Objednávka&body="+encodeURIComponent(msg);
+}
+
+loadCSV();
+</script>
+</body>
+</html>
