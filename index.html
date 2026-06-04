@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Řeznictví U Zlatého nože</title>
+<style>
+body{font-family:Arial;margin:0;background:linear-gradient(135deg,#2b0000,#000);color:white}
+h1{text-align:center;padding:20px;background:#b22222;margin:0}
+.container{max-width:700px;margin:20px auto;background:white;color:black;padding:20px;border-radius:15px}
+.item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #ddd}
+input[type=number]{width:60px}
+.summary{text-align:center;margin-top:10px;font-weight:bold}
+input[type=text],input[type=email]{width:100%;padding:10px;margin-top:10px}
+button{width:100%;padding:15px;margin-top:15px;font-size:18px;background:#b22222;color:white;border:none;border-radius:10px}
+.logo{text-align:center;margin:10px}
+</style>
+</head>
+<body>
+<h1>🥩 Řeznictví U Zlatého nože</h1>
+<div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" width="80"></div>
+<div class="container">
+<div id="items"></div>
+<div id="celkem" class="summary">Celkem: 0 Kč</div>
+<div id="pocet" class="summary">Počet: 0</div>
+<input type="text" id="jmeno" placeholder="Jméno a příjmení">
+<input type="email" id="email" placeholder="Email">
+<input type="text" id="telefon" placeholder="Telefon">
+<button onclick="odeslat()">Odeslat objednávku</button>
+</div>
+<script>
+let items=[];
+async function loadCSV(){
+ let r=await fetch("data_reznictvi.csv?t="+Date.now());
+ let t=await r.text();
+ let lines=t.split("
+");
+ for(let i=1;i<lines.length;i++){
+  let [n,c]=lines[i].split(";");
+  if(n&&c)items.push({n:n,c:parseFloat(c),m:0});
+ }
+ render();
+}
+function render(){
+ let c=document.getElementById("items");c.innerHTML="";
+ items.forEach((it,i)=>{
+  let d=document.createElement("div");d.className="item";
+  d.innerHTML=`<span>${it.n} (${it.c} Kč)</span><input type='number' min='0' value='0' onchange='upd(${i},this.value)'>`;
+  c.appendChild(d);
+ });
+}
+function upd(i,v){items[i].m=parseInt(v)||0;sum();}
+function sum(){
+ let cel=0,poc=0;
+ items.forEach(it=>{cel+=it.c*it.m;poc+=it.m});
+ celkem.innerText="Celkem: "+cel+" Kč";
+ pocet.innerText="Počet: "+poc;
+}
+function odeslat(){
+ let j=jmeno.value,e=email.value,tel=telefon.value;
+ if(!j||!e||!tel){alert("Vyplň údaje");return}
+ let txt="",cel=0,poc=0;
+ items.forEach(it=>{if(it.m>0){txt+=it.n+" "+it.m+" ks
+";cel+=it.m*it.c;poc+=it.m}});
+ if(!poc){alert("Nic nevybráno");return}
+ let mail=`mailto:zdrahal.robin@kostka-skola.cz?subject=Objednávka&body=${encodeURIComponent(j+"
+"+e+"
+"+tel+"
+
+"+txt+"
+Celkem:"+cel)}`;
+ window.location.href=mail;
+}
+loadCSV();
+</script>
+</body>
+</html>
